@@ -2,10 +2,9 @@ import { useNavigate } from "react-router-dom"
 
 export default function RoomCard({ roomName, roomId, online, theme, chatType, usersAllowed }) {
     const navigate = useNavigate()
-
     const handleButton = () => {
-        if (online === 10) return
-        navigate(`/chatRoom/${roomId}`)
+        console.log("aqui")
+        return navigate(`/chatRoom/:${roomId}`)
     }
 
     return (
@@ -22,7 +21,7 @@ export default function RoomCard({ roomName, roomId, online, theme, chatType, us
                 className={`${
                     online >= 10 && "hover:bg-stone-500 focus:bg-stone-500 bg-stone-500"
                 } hover:bg-teal-400 focus:bg-teal-400 bg-teal-500 transition-all duration-100 w-[80%] py-2 rounded-md text-white font-medium`}
-                disabled={online >= 10 || !usersAllowed}
+                disabled={false}
                 style={{
                     opacity: online >= 10 || !usersAllowed ? 0.5 : 1,
                 }}

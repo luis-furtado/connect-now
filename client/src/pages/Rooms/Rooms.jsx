@@ -6,7 +6,7 @@ import { io } from "socket.io-client";
 import config from "../../config.json";
 import { AuthContext } from "../../context/AuthContext";
 
-const socket = io(`${config.API_ROUTE}`);
+// const socket = io(`${config.API_ROUTE}`);
 
 export default function Rooms() {
   const [roomsRender, setRoomRender] = useState([]);
@@ -16,36 +16,31 @@ export default function Rooms() {
   const { user, setUser } = useContext(AuthContext);
 
   const getRooms = async () => {
-    const { data } = await axios.get(`${config.API_ROUTE}/rooms`);
+    const { data } = await axios.get(`http://localhost:8000/rooms`);
     setServerData(data);
   };
 
+  useEffect(() => {
+    getRooms();
+  }, []);
+
   const handleRenderRooms = async () => {
     const arr = [];
-    console.log(user.chatAvailabilty);
-    serverData.map((a, i) =>
+    console.log(serverData)
+    serverData.map((a,i) =>
       arr.push([
         <RoomCard
-          key={i}
+          key={a.key}
           online={a.online}
-          roomId={a.id}
-          roomName={a.name}
-          theme={a.tema}
-          chatType={a.tipoSala}
-          usersAllowed={user?.chatAvailabilty === a.tipoSala}
+          roomId={a.roomId}
+          roomName={a.roomName}
+          theme={a.theme}
+          chatType={a.chatType}
         />,
       ])
     );
     setRoomRender(arr);
   };
-
-  useEffect(() => {
-    getRooms();
-    socket.on("rooms", (rooms) => {
-      console.log(rooms);
-      setServerData(rooms);
-    });
-  }, []);
 
   useEffect(() => {
     handleRenderRooms();
@@ -55,7 +50,7 @@ export default function Rooms() {
   const handleBack = () => {
     localStorage.clear();
     setUser(null);
-    navigate("/");
+    navigate("/chatRoom/:1");
   };
 
   if (!user) return navigate("/");
@@ -68,6 +63,12 @@ export default function Rooms() {
           className="hover:bg-teal-400 focus:bg-teal-400 transition-all duration-100 bg-red-500 py-2 w-[350px] rounded-md text-white font-medium"
         >
           Voltar para login
+        </button>
+        <button
+          onClick={handleBack}
+          className="hover:bg-teal-400 focus:bg-teal-400 transition-all duration-100 bg-red-500 py-2 w-[350px] rounded-md text-white font-medium"
+        >
+          ir para sala
         </button>
       </div>
       <h1 className="text-white text-4xl font-bold">Salas disponíveis</h1>
