@@ -1,4 +1,4 @@
-from typing import List,Dict,Tuple
+from typing import List
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
@@ -38,19 +38,21 @@ def get_rooms():
 class ConnectionManager:
 
     def __init__(self) -> None:
-        self.active_connections: List[Tuple[WebSocket,str]] = []
+        self.active_connections: List[WebSocket] = []
 
-    async def connect(self, websocket: WebSocket,room:str):
+    async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections.append((websocket, room))
+        self.active_connections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections = [connection for connection in self.active_connections if connection[0] != websocket]
+        self.active_connections.remove(websocket)
 
-    async def broadcast(self, message: str,room:str):
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
         for connection in self.active_connections:
-            if connection[1].room==room:
-                await connection.send_text(message)
+            await connection.send_text(message)
 
 
 manager = ConnectionManager()
@@ -68,7 +70,7 @@ def Users():
     return len(manager.active_connections)
 
 
-@app.websocket("/ws/{room}/{client_id}")
+@app.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
     await manager.connect(websocket)
     client={"client_id":client_id,"status":"Online"}
@@ -88,24 +90,3 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
         users.append({"client_id":client_id,"status":"Status"})
         message = {"time":current_time,"clientId":client_id,"message":"Offline"}
         await manager.broadcast(json.dumps(message))
-
-@app.websocket("/ws/video/{client_id}")
-async def websocket_endpoint(websocket: WebSocket,room:int, client_id: int):
-    await manager.connect(websocket,room)
-    client={"client_id":client_id,"status":"Online","room":room}
-    users.append(client)
-    now = datetime.now()
-    current_time = now.strftime("%H:%M")
-    try:
-        while True:
-            data = await websocket.receive_text()
-            # await manager.send_personal_message(f"You wrote: {data}", websocket)
-            message = {"time":current_time,"clientId":client_id,"message":data,"room":room}
-            await manager.broadcast(json.dumps(message),room)
-            
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        users.remove(client)
-        users.append({"client_id":client_id,"status":"Status"})
-        message = {"time":current_time,"clientId":client_id,"message":"Offline","room":room}
-        await manager.broadcast(json.dumps(message),room)
