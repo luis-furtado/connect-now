@@ -50,8 +50,12 @@ export default function Rooms() {
   const handleBack = () => {
     localStorage.clear();
     setUser(null);
-    navigate("/chatRoom/:1");
+    navigate("/chatRoom/1");
   };
+
+  const handleVideoCall = () => {
+    navigate("/videoRoom/1");
+  }
 
   if (!user) return navigate("/");
 
@@ -69,6 +73,12 @@ export default function Rooms() {
           className="hover:bg-teal-400 focus:bg-teal-400 transition-all duration-100 bg-red-500 py-2 w-[350px] rounded-md text-white font-medium"
         >
           ir para sala
+        </button>
+        <button
+          onClick={handleVideoCall}
+          className="hover:bg-teal-400 focus:bg-teal-400 transition-all duration-100 bg-red-500 py-2 w-[350px] rounded-md text-white font-medium"
+        >
+          ir para video call
         </button>
       </div>
       <h1 className="text-white text-4xl font-bold">Salas disponíveis</h1>
