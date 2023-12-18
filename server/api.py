@@ -7,7 +7,7 @@ from pydantic import BaseModel
 import json
 
 app = FastAPI()
-users=[]
+users = []
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -27,8 +27,11 @@ class Room(BaseModel):
     chatType: str
     # usersAllowed: bool  # This should be handled differently
 
+
 # Samp
-rooms = [{"key": 1, "online": len(users), "roomId": 1, "roomName": "Room 1", "theme": "Theme1", "chatType": "Type1"}]
+rooms = [{"key": 1, "online": len(
+    users), "roomId": 1, "roomName": "Room 1", "theme": "Theme1", "chatType": "Type1"}]
+
 
 @app.get("/rooms", response_model=List[Room])
 def get_rooms():
@@ -57,23 +60,23 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-# define endpoint
-
 
 @app.get("/")
 def Home():
     return "Welcome home"
 
 # Usuarios
+
+
 @app.get("/users")
 def Users():
-    return len(manager.active_connections)
+    return json.dumps(users)
 
 
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
     await manager.connect(websocket)
-    client={"client_id":client_id,"status":"Online"}
+    client = {"client_id": client_id, "status": "Online"}
     users.append(client)
     now = datetime.now()
     current_time = now.strftime("%H:%M")
@@ -81,12 +84,64 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
         while True:
             data = await websocket.receive_text()
             # await manager.send_personal_message(f"You wrote: {data}", websocket)
-            message = {"time":current_time,"clientId":client_id,"message":data}
+            message = {"time": current_time,
+                       "clientId": client_id, "message": data}
             await manager.broadcast(json.dumps(message))
-            
+
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         users.remove(client)
-        users.append({"client_id":client_id,"status":"Status"})
-        message = {"time":current_time,"clientId":client_id,"message":"Offline"}
+        users.append({"client_id": client_id, "status": "Status"})
+        message = {"time": current_time,
+                   "clientId": client_id, "message": "Offline"}
+        await manager.broadcast(json.dumps(message))
+
+
+@app.websocket("/ws/video/{room}/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, room: int, client_id: int):
+    await manager.connect(websocket)
+    client = {"client_id": client_id, "status": "Online", "room": room}
+    now = datetime.now()
+    current_time = now.strftime("%H:%M")
+    try:
+        while True:
+            data = await websocket.receive_text()
+            message = {"time": current_time, "clientId": client_id,
+                       "message": data, "room": room}
+            print(message)
+            
+            await manager.broadcast(json.dumps(message))
+
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        users.remove(client)
+        users.append({"client_id": client_id, "status": "Status"})
+        message = {"time": current_time, "clientId": client_id,
+                   "message": "Offline", "room": room}
+        print(message)
+        await manager.broadcast(json.dumps(message))
+
+
+@app.websocket("/ws/video-chat/{room}/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, room: int, client_id: int):
+    await manager.connect(websocket)
+    client = {"client_id": client_id, "status": "Online", "room": room}
+    now = datetime.now()
+    current_time = now.strftime("%H:%M")
+    try:
+        while True:
+            data = await websocket.receive_text()
+            message = {"time": current_time, "clientId": client_id,
+                       "message": data, "room": room}
+            print(message)
+            
+            await manager.broadcast(json.dumps(message))
+
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        users.remove(client)
+        users.append({"client_id": client_id, "status": "Status"})
+        message = {"time": current_time, "clientId": client_id,
+                   "message": "Offline", "room": room}
+        print(message)
         await manager.broadcast(json.dumps(message))
