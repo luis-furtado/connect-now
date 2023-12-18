@@ -4,7 +4,8 @@ import ReactDOM from "react-dom/client";
 import Login from "./pages/Login/Login";
 import Rooms from "./pages/Rooms/Rooms";
 import ChatRoom from "./pages/ChatRoom/ChatRoom";
-import {VideoRoom} from "./pages/VideoRoom/VideoRoom";
+import { VideoRoom } from "./pages/VideoRoom/VideoRoom";
+import { VideoChatRoom } from "./pages/VideoChatRoom/VideoChatRoom";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import AuthContextProvider from "./context/AuthContext";
 
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
   {
     path: "/videoRoom/:roomId",
     element: <VideoRoom />,
+  },
+  {
+    path: "/videoChat/:roomId",
+    element: <VideoChatRoom />,
   },
 ]);
 

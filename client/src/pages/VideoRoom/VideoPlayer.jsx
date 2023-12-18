@@ -5,6 +5,7 @@ export const VideoPlayer = ({ user }) => {
 
   useEffect(() => {
     user.videoTrack.play(ref.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -57,6 +57,10 @@ export default function Rooms() {
     navigate("/videoRoom/1");
   }
 
+  const handleVideoChat = () => {
+    navigate("/videoChat/1");
+  }
+
   if (!user) return navigate("/");
 
   return (
@@ -79,6 +83,12 @@ export default function Rooms() {
           className="hover:bg-teal-400 focus:bg-teal-400 transition-all duration-100 bg-red-500 py-2 w-[350px] rounded-md text-white font-medium"
         >
           ir para video call
+        </button>
+        <button
+          onClick={handleVideoChat}
+          className="hover:bg-teal-400 focus:bg-teal-400 transition-all duration-100 bg-red-500 py-2 w-[350px] rounded-md text-white font-medium"
+        >
+          ir para video chat
         </button>
       </div>
       <h1 className="text-white text-4xl font-bold">Salas disponíveis</h1>

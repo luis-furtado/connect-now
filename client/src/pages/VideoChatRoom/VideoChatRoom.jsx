@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from "react";
 import AgoraRTC from "agora-rtc-sdk-ng";
-import { VideoPlayer } from "./VideoPlayer";
+import { VideoPlayer } from "../VideoRoom/VideoPlayer";
 
 const APP_ID = "0294aae3dd5441f7b7a99385af5e556b";
 const TOKEN =
   "007eJxTYOCSK/fi38ipJHd2n9Vd7WneJb+ybBdWf7vX/8roTYG2xzQFBgMjS5PExFTjlBRTExPDNPMk80RLS2ML08Q001RTU7Mkz4z61IZARgbllYuYGRkgEMRnYUgrSjZkYAAA1M0d3w==";
 const CHANNEL = "frc1";
 
-AgoraRTC.setLogLevel(2)
+AgoraRTC.setLogLevel(2);
 
 const client = AgoraRTC.createClient({
   mode: "rtc",
   codec: "vp8",
 });
 
-export const VideoRoom = () => {
+export const VideoChatRoom = () => {
   const [users, setUsers] = useState([]);
-  const [clientId] = useState(
-    Math.floor(new Date().getTime() / 1000)
-  );
+  const [clientId] = useState(Math.floor(new Date().getTime() / 1000));
   const [localTracks, setLocalTracks] = useState([]);
   const [chatSocket, setChatSocket] = useState(null);
   const [message, setMessage] = useState([]);
@@ -32,7 +30,7 @@ export const VideoRoom = () => {
     }
 
     if (mediaType === "audio") {
-      user.audioTrack.play()
+      user.audioTrack.play();
     }
   };
 
@@ -65,12 +63,13 @@ export const VideoRoom = () => {
         client.publish(tracks);
       });
 
-    const ws = new WebSocket(`ws://localhost:8000/ws/video/1/${clientId}`);
+    const ws = new WebSocket(`ws://localhost:8000/ws/video-chat/1/${clientId}`);
 
     ws.onopen = () => {
-      ws.send(`User ${clientId} connected`);
+      ws.send("Connect");
     };
 
+    // recieve message every start page
     ws.onmessage = (e) => {
       const message = JSON.parse(e.data);
       setMessages((previousMessages) => [...previousMessages, message]);
@@ -104,7 +103,7 @@ export const VideoRoom = () => {
         }}
       >
         {users.map((user) => (
-          <VideoPlayer key={user.uid} user={user}/>
+          <VideoPlayer key={user.uid} user={user} />
         ))}
       </div>
       <div className="chat-container">
@@ -114,7 +113,8 @@ export const VideoRoom = () => {
               return (
                 <div key={index} className="my-message-container">
                   <div className="my-message">
-                    <p className="client">client id({clientId}): {value.message}</p>
+                    <p className="client">client id : {clientId}</p>
+                    <p className="message">{value.message}</p>
                   </div>
                 </div>
               );
@@ -122,7 +122,8 @@ export const VideoRoom = () => {
               return (
                 <div key={index} className="another-message-container">
                   <div className="another-message">
-                    <p className="client">client id({clientId}):  {value.message}</p>
+                    <p className="client">client id : {clientId}</p>
+                    <p className="message">{value.message}</p>
                   </div>
                 </div>
               );
