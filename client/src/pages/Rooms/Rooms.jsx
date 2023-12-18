@@ -30,10 +30,10 @@ export default function Rooms() {
     serverData.map((a,i) =>
       arr.push([
         <RoomCard
-          key={a.key}
-          online={a.online}
-          roomId={a.roomId}
           roomName={a.roomName}
+          key={a.key}
+          roomId={a.roomId}
+          online={a.online}
           theme={a.theme}
           chatType={a.chatType}
         />,
@@ -50,7 +50,7 @@ export default function Rooms() {
   const handleBack = () => {
     localStorage.clear();
     setUser(null);
-    navigate("/chatRoom/1");
+    navigate("/rooms");
   };
 
   const handleVideoCall = () => {

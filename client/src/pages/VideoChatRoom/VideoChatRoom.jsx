@@ -65,14 +65,15 @@ export const VideoChatRoom = () => {
 
     const ws = new WebSocket(`ws://localhost:8000/ws/video-chat/1/${clientId}`);
 
-    ws.onopen = () => {
+    ws.onopen = (event) => {
       ws.send("Connect");
     };
 
     // recieve message every start page
     ws.onmessage = (e) => {
       const message = JSON.parse(e.data);
-      setMessages((previousMessages) => [...previousMessages, message]);
+      console.log(messages)
+      setMessages(messages=>[...messages, message]);
     };
 
     setChatSocket(ws);
@@ -85,13 +86,20 @@ export const VideoChatRoom = () => {
       client.off("user-published", handleUserJoined);
       client.off("user-left", handleUserLeft);
       client.unpublish().then(() => client.leave());
+      ws.close()
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const sendMessage = () => {
     chatSocket.send(message);
-    setMessage("");
+    console.log(messages)
+    chatSocket.onmessage = (e) => {
+      const message = JSON.parse(e.data);
+      console.log(message)
+      setMessages(messages=>[...messages, message]);
+    };
+    setMessage([]);
   };
 
   return (
@@ -113,7 +121,7 @@ export const VideoChatRoom = () => {
               return (
                 <div key={index} className="my-message-container">
                   <div className="my-message">
-                    <p className="client">client id : {clientId}</p>
+                    <p className="client">client id : {value.clientId}</p>
                     <p className="message">{value.message}</p>
                   </div>
                 </div>
@@ -122,7 +130,7 @@ export const VideoChatRoom = () => {
               return (
                 <div key={index} className="another-message-container">
                   <div className="another-message">
-                    <p className="client">client id : {clientId}</p>
+                    <p className="client">client id : {value.clientId}</p>
                     <p className="message">{value.message}</p>
                   </div>
                 </div>

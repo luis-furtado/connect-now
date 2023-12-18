@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom"
 export default function RoomCard({ roomName, roomId, online, theme, chatType, usersAllowed }) {
     const navigate = useNavigate()
     const handleButton = () => {
-        console.log("aqui")
         return navigate(`/chatRoom/:${roomId}`)
     }
 

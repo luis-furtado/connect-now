@@ -15,10 +15,10 @@ const [clientId, setClientId] = useState(
 const [websckt, setWebsckt] = useState();
 const [message, setMessage] = useState([]);
 const [messages, setMessages] = useState([]);
-const [visibleArrow, setVisibleArrow] = useState(true);
+const {sala} = useParams();
 
 useEffect(() => {
-  const url = "ws://localhost:8000/ws/" + clientId;
+  const url = `ws://localhost:8000/ws/${sala}/${clientId}`;
   const ws = new WebSocket(url);
 
   ws.onopen = (event) => {
@@ -28,7 +28,7 @@ useEffect(() => {
   // recieve message every start page
   ws.onmessage = (e) => {
     const message = JSON.parse(e.data);
-    setMessages([...messages, message]);
+    setMessages(messages=>[...messages, message]);
   };
 
   setWebsckt(ws);
@@ -41,49 +41,11 @@ const sendMessage = () => {
   // recieve message every send message
   websckt.onmessage = (e) => {
     const message = JSON.parse(e.data);
-    setMessages([...messages, message]);
+    setMessages(messages=>[...messages, message]);
   };
   setMessage([]);
 };
-// const getMessages = async () => {
-//   const { data } = await axios.get(`${config.API_ROUTE}/messages/${roomId}`);
-//   setServerData(data.messages);
-// };
-// const postMessages = async () =>
-//   await axios.post(`${config.API_ROUTE}/messages/${roomId}`, {
-//     username: user?.username,
-//     message: inputValue,
-//   });
 
-// const renderMessage = () => {
-//   const arr = [];
-//   serverData.map((data, i) =>
-//     arr.push([
-//       <div
-//         key={i}
-//         className="animate__animated  animate__fadeInUp md:flex-col md:items-start items-end flex  gap-2 w-full "
-//       >
-//         <div className="bg-slate-700 px-5 w-fit max-w-[92%] py-2 rounded-lg">
-//           <h1 className="font-bold text-teal-400">{data[0].username}</h1>
-//           <p className="text-white break-words">{data[0].message}</p>
-//         </div>
-//         <p className="text-white text-sm">{data[0].time}</p>
-//       </div>,
-//     ])
-//   );
-
-//   setMessages(arr);
-// };
-
-const handleArrow = () => {
-  const container = document.querySelector("#scroll");
-  if (
-    container.scrollTop <=
-    container.scrollHeight - container.clientHeight - 20
-  )
-    return setVisibleArrow(false);
-  setVisibleArrow(true);
-};
 
 return (
     <div className="container">
@@ -92,26 +54,16 @@ return (
       <div className="chat-container">
         <div className="chat">
           {messages.map((value, index) => {
-            if (value.clientId === clientId) {
               return (
                 <div key={index} className="my-message-container">
                 <div className="my-message">
-                  <p className="client">client id : {clientId}</p>
+                  <p className="client">client id : {value.clientId}</p>
                   <p className="message">{value.message}</p>
                 </div>
               </div>
               );
-            } else {
-              return (
-                <div key={index} className="another-message-container">
-                  <div className="another-message">
-                    <p className="client">client id : {clientId}</p>
-                    <p className="message">{value.message}</p>
-                  </div>
-                </div>
-              );
             }
-          })}
+          )}
         </div>
         <div className="input-chat-container">
         <input
