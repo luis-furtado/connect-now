@@ -1,65 +1,30 @@
-import { useEffect, useState, useContext } from "react";
+import { useContext } from "react";
 import RoomCard from "../../components/RoomCard";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { io } from "socket.io-client";
-import config from "../../config.json";
 import { AuthContext } from "../../context/AuthContext";
 
-// const socket = io(`${config.API_ROUTE}`);
-
 export default function Rooms() {
-  const [roomsRender, setRoomRender] = useState([]);
-  const [serverData, setServerData] = useState([]);
   const navigate = useNavigate();
 
   const { user, setUser } = useContext(AuthContext);
 
-  const getRooms = async () => {
-    const { data } = await axios.get(`http://localhost:8000/rooms`);
-    setServerData(data);
-  };
-
-  useEffect(() => {
-    getRooms();
-  }, []);
-
-  const handleRenderRooms = async () => {
-    const arr = [];
-    console.log(serverData)
-    serverData.map((a,i) =>
-      arr.push([
-        <RoomCard
-          roomName={a.roomName}
-          key={a.key}
-          roomId={a.roomId}
-          online={a.online}
-          theme={a.theme}
-          chatType={a.chatType}
-        />,
-      ])
-    );
-    setRoomRender(arr);
-  };
-
-  useEffect(() => {
-    handleRenderRooms();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serverData]);
-
   const handleBack = () => {
     localStorage.clear();
     setUser(null);
-    navigate("/rooms");
+    navigate("/");
+  };
+
+  const handleChat = () => {
+    navigate("/chatRoom/1");
   };
 
   const handleVideoCall = () => {
     navigate("/videoRoom/1");
-  }
+  };
 
   const handleVideoChat = () => {
     navigate("/videoChat/1");
-  }
+  };
 
   if (!user) return navigate("/");
 
@@ -72,28 +37,33 @@ export default function Rooms() {
         >
           Voltar para login
         </button>
-        <button
-          onClick={handleBack}
-          className="hover:bg-teal-400 focus:bg-teal-400 transition-all duration-100 bg-red-500 py-2 w-[350px] rounded-md text-white font-medium"
-        >
-          ir para sala
-        </button>
-        <button
-          onClick={handleVideoCall}
-          className="hover:bg-teal-400 focus:bg-teal-400 transition-all duration-100 bg-red-500 py-2 w-[350px] rounded-md text-white font-medium"
-        >
-          ir para video call
-        </button>
-        <button
-          onClick={handleVideoChat}
-          className="hover:bg-teal-400 focus:bg-teal-400 transition-all duration-100 bg-red-500 py-2 w-[350px] rounded-md text-white font-medium"
-        >
-          ir para video chat
-        </button>
       </div>
       <h1 className="text-white text-4xl font-bold">Salas disponíveis</h1>
       <div className="grid md:grid-cols-1 lg:grid-cols-2 grid-cols-3 gap-4">
-        {roomsRender}
+        <RoomCard
+          roomName={"Chat"}
+          roomId={1}
+          theme={"Política"}
+          chatType={"chat"}
+          usersAllowed={user.chatAvailabilty === "chat"}
+          handleEnterRoom={handleChat}
+        />
+        <RoomCard
+          roomName={"Video"}
+          roomId={2}
+          theme={"Futebol"}
+          chatType={"video"}
+          usersAllowed={user.chatAvailabilty === "video"}
+          handleEnterRoom={handleVideoCall}
+        />
+        <RoomCard
+          roomName={"Video Chat"}
+          roomId={3}
+          theme={"Música"}
+          chatType={"video chat"}
+          usersAllowed={user.chatAvailabilty === "ambos"}
+          handleEnterRoom={handleVideoChat}
+        />
       </div>
     </div>
   );

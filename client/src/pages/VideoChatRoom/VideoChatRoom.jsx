@@ -2,10 +2,9 @@ import React, { useEffect, useState } from "react";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import { VideoPlayer } from "../VideoRoom/VideoPlayer";
 
-const APP_ID = "0294aae3dd5441f7b7a99385af5e556b";
-const TOKEN =
-  "007eJxTYOCSK/fi38ipJHd2n9Vd7WneJb+ybBdWf7vX/8roTYG2xzQFBgMjS5PExFTjlBRTExPDNPMk80RLS2ML08Q001RTU7Mkz4z61IZARgbllYuYGRkgEMRnYUgrSjZkYAAA1M0d3w==";
-const CHANNEL = "frc1";
+const APP_ID = process.env.REACT_APP_AGORA_APP_ID;
+const TOKEN = process.env.REACT_APP_AGORA_TOKEN;
+const CHANNEL = process.env.REACT_APP_AGORA_CHANNEL;
 
 AgoraRTC.setLogLevel(2);
 
@@ -63,7 +62,7 @@ export const VideoChatRoom = () => {
         client.publish(tracks);
       });
 
-    const ws = new WebSocket(`ws://localhost:8000/ws/video-chat/1/${clientId}`);
+    const ws = new WebSocket(`ws://localhost:8000/ws/video-chat/3/${clientId}`);
 
     ws.onopen = (event) => {
       ws.send("Connect");
@@ -90,6 +89,15 @@ export const VideoChatRoom = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleLeave = () => {
+    for (let localTrack of localTracks) {
+      localTrack.stop();
+      localTrack.close();
+    }
+    client.unpublish().then(() => client.leave());
+    chatSocket.close();
+  };
 
   const sendMessage = () => {
     chatSocket.send(message);

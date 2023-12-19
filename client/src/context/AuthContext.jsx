@@ -11,8 +11,9 @@ const AuthContextProvider = ({ children }) => {
   useEffect(() => {
     const username = localStorage.getItem("username");
     const chatAvailabilty = localStorage.getItem("chatAvailabilty");
-    if (username && chatAvailabilty) {
-      setUser({ username, chatAvailabilty });
+    const userId = localStorage.getItem("userId");
+    if (username && chatAvailabilty && userId) {
+      setUser({ username, chatAvailabilty, userId });
     }
   }, []);
 

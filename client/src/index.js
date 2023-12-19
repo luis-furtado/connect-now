@@ -34,6 +34,8 @@ const router = createBrowserRouter([
   },
 ]);
 
+export const API_DNS = `${process.env.REACT_APP_API_DNS}`;
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <AuthContextProvider>

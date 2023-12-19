@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import { VideoPlayer } from "./VideoPlayer";
+import { API_DNS } from "../../index";
+import { AuthContext } from "../../context/AuthContext";
+import { useContext } from "react";
 
-const APP_ID = "0294aae3dd5441f7b7a99385af5e556b";
-const TOKEN =
-  "007eJxTYOCSK/fi38ipJHd2n9Vd7WneJb+ybBdWf7vX/8roTYG2xzQFBgMjS5PExFTjlBRTExPDNPMk80RLS2ML08Q001RTU7Mkz4z61IZARgbllYuYGRkgEMRnYUgrSjZkYAAA1M0d3w==";
-const CHANNEL = "frc1";
+const APP_ID = process.env.REACT_APP_AGORA_APP_ID;
+const TOKEN = process.env.REACT_APP_AGORA_TOKEN;
+const CHANNEL = process.env.REACT_APP_AGORA_CHANNEL;
 
-AgoraRTC.setLogLevel(2)
+AgoraRTC.setLogLevel(2);
 
 const client = AgoraRTC.createClient({
   mode: "rtc",
@@ -16,12 +18,10 @@ const client = AgoraRTC.createClient({
 
 export const VideoRoom = () => {
   const [users, setUsers] = useState([]);
-  const [clientId] = useState(
-    Math.floor(new Date().getTime() / 1000)
-  );
+  const { user } = useContext(AuthContext);
+  const clientId = user?.userId;
   const [localTracks, setLocalTracks] = useState([]);
   const [chatSocket, setChatSocket] = useState(null);
-  const [message, setMessage] = useState([]);
   const [messages, setMessages] = useState([]);
 
   const handleUserJoined = async (user, mediaType) => {
@@ -32,7 +32,7 @@ export const VideoRoom = () => {
     }
 
     if (mediaType === "audio") {
-      user.audioTrack.play()
+      user.audioTrack.play();
     }
   };
 
@@ -43,6 +43,7 @@ export const VideoRoom = () => {
   };
 
   useEffect(() => {
+    if (!clientId) return;
     client.on("user-published", handleUserJoined);
     client.on("user-left", handleUserLeft);
 
@@ -65,7 +66,7 @@ export const VideoRoom = () => {
         client.publish(tracks);
       });
 
-    const ws = new WebSocket(`ws://localhost:8000/ws/video/1/${clientId}`);
+    const ws = new WebSocket(`ws:${API_DNS}/ws/video/2/${clientId}`);
 
     ws.onopen = () => {
       ws.send(`User ${clientId} connected`);
@@ -90,21 +91,35 @@ export const VideoRoom = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const sendMessage = () => {
-    chatSocket.send(message);
-    setMessage("");
+  const handleLeave = () => {
+    for (let localTrack of localTracks) {
+      localTrack.stop();
+      localTrack.close();
+    }
+    client.unpublish().then(() => client.leave());
+    chatSocket.send(`User ${clientId} disconnected`);
+    chatSocket.close();
+    window.location.href = "/rooms";
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <div className="w-screen md:h-fit h-screen bg-slate-950">
+      <button
+        className="bg-red-500 hover:bg-red-600 focus:bg-red-600 transition-all duration-100 w-[80%] py-2 rounded-md text-white font-medium"
+        onClick={handleLeave}
+      >
+        Sair da Sala
+      </button>
+
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 200px)",
+          display: "flex",
+          gap: "20px",
+          marginBottom: "100px",
         }}
       >
         {users.map((user) => (
-          <VideoPlayer key={user.uid} user={user}/>
+          <VideoPlayer key={user.uid} user={user} />
         ))}
       </div>
       <div className="chat-container">
@@ -114,7 +129,9 @@ export const VideoRoom = () => {
               return (
                 <div key={index} className="my-message-container">
                   <div className="my-message">
-                    <p className="client">client id({clientId}): {value.message}</p>
+                    <p className="client">
+                      client id({clientId}): {value.message}
+                    </p>
                   </div>
                 </div>
               );
@@ -122,24 +139,14 @@ export const VideoRoom = () => {
               return (
                 <div key={index} className="another-message-container">
                   <div className="another-message">
-                    <p className="client">client id({clientId}):  {value.message}</p>
+                    <p className="client" style={{ color: `white` }}>
+                      client id({clientId}): {value.message}
+                    </p>
                   </div>
                 </div>
               );
             }
           })}
-        </div>
-        <div className="input-chat-container">
-          <input
-            className="input-chat"
-            type="text"
-            placeholder="Chat message ..."
-            onChange={(e) => setMessage(e.target.value)}
-            value={message}
-          ></input>
-          <button className="submit-chat" onClick={sendMessage}>
-            Send
-          </button>
         </div>
       </div>
     </div>

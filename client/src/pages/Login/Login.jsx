@@ -4,20 +4,36 @@ import { AuthContext } from "../../context/AuthContext";
 
 export default function Login() {
   const [inputValue, setInputValue] = useState("");
-  const [password, setPassword] = useState("");
   const [chatAvailabilty, setChatAvailabilty] = useState(""); // options should be ["chat", "video", "ambos"]
   const navigate = useNavigate();
   const { setUser } = useContext(AuthContext);
 
   const handleInputValue = (e) => setInputValue(e.target.value);
   const handleChatAvailabilty = (e) => setChatAvailabilty(e.target.value);
-  const handlePassword = (e) => setPassword(e.target.value);
-  const handleButton = () => {
+  const handleButton = async () => {
     if (inputValue.length < 4) return;
     if (chatAvailabilty.length === 0) return;
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/login/${inputValue}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((res) => res.json())
+      .catch(() =>
+        alert("Aconteceu algum problema, tente novamente mais tarde")
+      );
     localStorage.setItem("username", inputValue);
     localStorage.setItem("chatAvailabilty", chatAvailabilty);
-    setUser({ username: inputValue, chatAvailabilty: chatAvailabilty });
+    localStorage.setItem("userId", response.client_id);
+    setUser({
+      username: inputValue,
+      chatAvailabilty: chatAvailabilty,
+      userId: response.client_id,
+    });
     navigate("/rooms");
   };
 
@@ -31,13 +47,7 @@ export default function Login() {
         type="text"
         className="bg-slate-900 text-lg text-white py-2 px-2 w-[350px] rounded-md"
       />
-      <input
-        value={password}
-        onChange={handlePassword}
-        placeholder="Senha"
-        type="password"
-        className="bg-slate-900 text-lg text-white py-2 px-2 w-[350px] rounded-md"
-      />
+
       <select
         onChange={handleChatAvailabilty}
         placeholder="Disponibilidade"
