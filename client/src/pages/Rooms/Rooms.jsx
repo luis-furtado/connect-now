@@ -19,11 +19,11 @@ export default function Rooms() {
   };
 
   const handleVideoCall = () => {
-    navigate("/videoRoom/1");
+    navigate("/videoRoom/2");
   };
 
   const handleVideoChat = () => {
-    navigate("/videoChat/1");
+    navigate("/videoChat/3");
   };
 
   if (!user) return navigate("/");

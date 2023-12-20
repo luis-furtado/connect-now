@@ -7,8 +7,8 @@ import { useContext } from "react";
 import { useParams } from "react-router-dom";
 
 const APP_ID = process.env.REACT_APP_AGORA_APP_ID;
-const TOKEN = process.env.REACT_APP_AGORA_TOKEN;
-const CHANNEL = process.env.REACT_APP_AGORA_CHANNEL;
+const TOKEN = process.env.REACT_APP_AGORA_VIDEO_TOKEN;
+const CHANNEL = process.env.REACT_APP_AGORA_VIDEO_CHANNEL;
 
 AgoraRTC.setLogLevel(2);
 
@@ -70,7 +70,7 @@ export const VideoChatRoom = () => {
         client.publish(tracks);
       });
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-    const url = `${protocol}://${API_DNS}/ws/video/${roomId}/${clientId}`;
+    const url = `${protocol}://${API_DNS}/ws/video-chat/${roomId}/${clientId}`;
     const ws = new WebSocket(url);
 
     ws.onopen = (event) => {
@@ -120,39 +120,33 @@ export const VideoChatRoom = () => {
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <div
+      style={{ display: "flex", justifyContent: "center", color: `white` }}
+      className="w-screen md:h-fit h-screen bg-slate-950"
+    >
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 200px)",
+          display: "flex",
+          gap: "20px",
+          marginBottom: "100px",
         }}
       >
         {users.map((user) => (
           <VideoPlayer key={user.uid} user={user} />
         ))}
       </div>
-      <div className="chat-container">
+      <div className="chat-container" style={{marginLeft: `30px`}}>
         <div className="chat">
           {messages.map((value, index) => {
-            if (value.clientId === clientId) {
-              return (
-                <div key={index} className="my-message-container">
-                  <div className="my-message">
-                    <p className="client">client id : {value.clientId}</p>
-                    <p className="message">{value.message}</p>
-                  </div>
+            return (
+              <div key={index} className="my-message-container">
+                <div className="my-message">
+                  <p className="client">
+                    client id ({value.clientId}): {value.message}
+                  </p>
                 </div>
-              );
-            } else {
-              return (
-                <div key={index} className="another-message-container">
-                  <div className="another-message">
-                    <p className="client">client id : {value.clientId}</p>
-                    <p className="message">{value.message}</p>
-                  </div>
-                </div>
-              );
-            }
+              </div>
+            );
           })}
         </div>
         <div className="input-chat-container">
@@ -162,8 +156,9 @@ export const VideoChatRoom = () => {
             placeholder="Chat message ..."
             onChange={(e) => setMessage(e.target.value)}
             value={message}
+            style={{ color: `black` }}
           ></input>
-          <button className="submit-chat" onClick={sendMessage}>
+          <button className="submit-chat" onClick={sendMessage} style={{ backgroundColor: `blue` }}>
             Send
           </button>
         </div>

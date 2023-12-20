@@ -98,8 +98,8 @@ export const VideoRoom = () => {
 
   const handleLeave = () => {
     for (let localTrack of localTracks) {
-      localTrack.stop();
-      localTrack.close();
+      localTrack?.stop();
+      localTrack?.close();
     }
     client.unpublish().then(() => client.leave());
     chatSocket.send(`User ${clientId} disconnected`);
@@ -140,7 +140,7 @@ export const VideoRoom = () => {
                 <div key={index} className="my-message-container">
                   <div className="my-message">
                     <p className="client">
-                      client id({clientId}): {value.message}
+                      message from server: {value.message}
                     </p>
                   </div>
                 </div>
@@ -150,7 +150,7 @@ export const VideoRoom = () => {
                 <div key={index} className="another-message-container">
                   <div className="another-message">
                     <p className="client" style={{ color: `white` }}>
-                      client id({clientId}): {value.message}
+                      message from server: {value.message}
                     </p>
                   </div>
                 </div>

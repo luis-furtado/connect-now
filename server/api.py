@@ -17,6 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 class Room(BaseModel):
     key: int
     online: bool
@@ -29,7 +30,12 @@ class Room(BaseModel):
 
 # Samp
 rooms = [{"key": 1, "online": len(
-    users), "roomId": 1, "roomName": "Room 1", "theme": "Politica", "chatType": "chat"},]
+    users), "roomId": 1, "roomName": "Room 1", "theme": "Politica", "chatType": "chat"},
+    {"key": 2, "online": len(
+        users), "roomId": 2, "roomName": "Room 2", "theme": "Esportes", "chatType": "video"},
+    {"key": 3, "online": len(
+        users), "roomId": 3, "roomName": "Room 3", "theme": "Tecnologia", "chatType": "video-chat"},
+]
 
 
 @app.get("/rooms", response_model=List[Room])
@@ -90,6 +96,7 @@ def Home():
 def Users():
     return JSONResponse(content={'users': users}, status_code=200)
 
+
 @app.post("/login/{username}")
 def login(username: str):
     userObject = {"username": username,
@@ -115,7 +122,7 @@ async def websocket_endpoint(websocket: WebSocket, room: str, client_id: int):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         message = {"time": current_time,
-                   "clientId": client_id, "message": 'user ' +  client['username'] + ' desconectou'}
+                   "clientId": client_id, "message": 'user ' + client['username'] + ' desconectou'}
         await manager.broadcast(json.dumps(message), room)
 
 
@@ -135,7 +142,7 @@ async def websocket_endpoint(websocket: WebSocket, room: int, client_id: int):
 
     except WebSocketDisconnect:
         message = {"time": current_time,
-                   "clientId": client_id, "message": 'user ' +  client['username'] + ' desconectou'}
+                   "clientId": client_id, "message": 'user ' + client['username'] + ' desconectou'}
         await manager.broadcast(json.dumps(message), room)
 
 
@@ -156,5 +163,5 @@ async def websocket_endpoint(websocket: WebSocket, room: int, client_id: int):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         message = {"time": current_time,
-                   "clientId": client_id, "message": 'user ' +  client['username'] + ' desconectou'}
+                   "clientId": client_id, "message": 'user ' + client['username'] + ' desconectou'}
         await manager.broadcast(json.dumps(message), room)
