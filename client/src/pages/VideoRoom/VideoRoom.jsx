@@ -70,7 +70,7 @@ export const VideoRoom = () => {
       });
 
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-    const url = `${protocol}://${API_DNS}/ws/chat/${roomId}/${clientId}`;
+    const url = `${protocol}://${API_DNS}/ws/video/${roomId}/${clientId}`;
     const ws = new WebSocket(url);
 
     ws.onopen = () => {
@@ -128,7 +128,12 @@ export const VideoRoom = () => {
         ))}
       </div>
       <div className="chat-container">
-        <div className="chat">
+        <div
+          className="chat"
+          style={{
+            color: `white`,
+          }}
+        >
           {messages.map((value, index) => {
             if (value.clientId === clientId) {
               return (

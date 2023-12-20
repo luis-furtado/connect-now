@@ -70,7 +70,7 @@ export const VideoChatRoom = () => {
         client.publish(tracks);
       });
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-    const url = `${protocol}://${API_DNS}/ws/chat/${roomId}/${clientId}`;
+    const url = `${protocol}://${API_DNS}/ws/video/${roomId}/${clientId}`;
     const ws = new WebSocket(url);
 
     ws.onopen = (event) => {

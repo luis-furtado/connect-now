@@ -103,8 +103,6 @@ def login(username: str):
 async def websocket_endpoint(websocket: WebSocket, room: str, client_id: int):
     await manager.connect(websocket, room)
     client = getClientById(client_id)
-    client = {"client_id": client_id, "status": "Online"}
-    users.append(client)
     now = datetime.now()
     current_time = now.strftime("%H:%M")
     try:
@@ -116,18 +114,15 @@ async def websocket_endpoint(websocket: WebSocket, room: str, client_id: int):
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        users.remove(client)
-        users.append({"client_id": client_id, "status": "Status"})
         message = {"time": current_time,
-                   "clientId": client_id, "message": "Offline"}
+                   "clientId": client_id, "message": 'user ' +  client['username'] + ' desconectou'}
         await manager.broadcast(json.dumps(message), room)
 
 
 @app.websocket("/ws/video/{room}/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, room: int, client_id: str):
+async def websocket_endpoint(websocket: WebSocket, room: int, client_id: int):
     await manager.connect(websocket, room)
-    client = {"client_id": client_id, "status": "Online"}
-    users.append(client)
+    client = getClientById(client_id)
     now = datetime.now()
     current_time = now.strftime("%H:%M")
     try:
@@ -139,19 +134,15 @@ async def websocket_endpoint(websocket: WebSocket, room: int, client_id: str):
             await manager.broadcast(json.dumps(message), room)
 
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        users.remove(client)
-        users.append({"client_id": client_id, "status": "Status"})
         message = {"time": current_time,
-                   "clientId": client_id, "message": "Offline"}
+                   "clientId": client_id, "message": 'user ' +  client['username'] + ' desconectou'}
         await manager.broadcast(json.dumps(message), room)
 
 
 @app.websocket("/ws/video-chat/{room}/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, room: int, client_id: int):
-    await manager.connect(websocket, room)  
-    client = {"client_id": client_id, "status": "Online"}
-    users.append(client)
+    await manager.connect(websocket, room)
+    client = getClientById(client_id)
     now = datetime.now()
     current_time = now.strftime("%H:%M")
     try:
@@ -164,8 +155,6 @@ async def websocket_endpoint(websocket: WebSocket, room: int, client_id: int):
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        users.remove(client)
-        users.append({"client_id": client_id, "status": "Status"})
         message = {"time": current_time,
-                   "clientId": client_id, "message": "Offline"}
+                   "clientId": client_id, "message": 'user ' +  client['username'] + ' desconectou'}
         await manager.broadcast(json.dumps(message), room)
