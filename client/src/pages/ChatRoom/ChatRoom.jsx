@@ -15,11 +15,14 @@ export default function ChatRoom() {
 
   useEffect(() => {
     if (!clientId) return;
-    const url = `ws://${API_DNS}/ws/chat/${roomId}/${clientId}`;
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const url = `${protocol}://${API_DNS}/ws/chat/${roomId}/${clientId}`;
+    console.log(`url`, url);
     const ws = new WebSocket(url);
+    console.log(`ws`, ws);
 
     ws.onopen = () => {
-      ws.send("Connect");
+      ws.send("Connected");
     };
 
     // recieve message every start page
@@ -46,7 +49,7 @@ export default function ChatRoom() {
   if (!clientId) return null;
 
   return (
-    <div className="container">
+    <div className="w-screen h-screen bg-slate-950" style={{ color: `white` }}>
       <h1>Chat</h1>
       <h2>your client id: {clientId} </h2>
       <div className="chat-container">
@@ -55,8 +58,9 @@ export default function ChatRoom() {
             return (
               <div key={index} className="my-message-container">
                 <div className="my-message">
-                  <p className="client">client id : {value.clientId}</p>
-                  <p className="message">{value.message}</p>
+                  <p className="client">
+                    client id ({value.clientId}): {value.message}
+                  </p>
                 </div>
               </div>
             );
@@ -69,6 +73,7 @@ export default function ChatRoom() {
             placeholder="Chat message ..."
             onChange={(e) => setMessage(e.target.value)}
             value={message}
+            style={{ color: `black` }}
           ></input>
           <button className="submit-chat" onClick={sendMessage}>
             Send

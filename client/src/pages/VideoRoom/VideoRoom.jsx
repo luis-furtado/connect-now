@@ -4,6 +4,7 @@ import { VideoPlayer } from "./VideoPlayer";
 import { API_DNS } from "../../index";
 import { AuthContext } from "../../context/AuthContext";
 import { useContext } from "react";
+import { useParams } from "react-router-dom";
 
 const APP_ID = process.env.REACT_APP_AGORA_APP_ID;
 const TOKEN = process.env.REACT_APP_AGORA_TOKEN;
@@ -42,6 +43,8 @@ export const VideoRoom = () => {
     );
   };
 
+  const { roomId } = useParams();
+
   useEffect(() => {
     if (!clientId) return;
     client.on("user-published", handleUserJoined);
@@ -66,7 +69,9 @@ export const VideoRoom = () => {
         client.publish(tracks);
       });
 
-    const ws = new WebSocket(`ws:${API_DNS}/ws/video/2/${clientId}`);
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const url = `${protocol}://${API_DNS}/ws/chat/${roomId}/${clientId}`;
+    const ws = new WebSocket(url);
 
     ws.onopen = () => {
       ws.send(`User ${clientId} connected`);

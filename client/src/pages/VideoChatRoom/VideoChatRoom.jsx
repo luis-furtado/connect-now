@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import { VideoPlayer } from "../VideoRoom/VideoPlayer";
+import { API_DNS } from "../../index";
+import { AuthContext } from "../../context/AuthContext";
+import { useContext } from "react";
+import { useParams } from "react-router-dom";
 
 const APP_ID = process.env.REACT_APP_AGORA_APP_ID;
 const TOKEN = process.env.REACT_APP_AGORA_TOKEN;
@@ -15,11 +19,14 @@ const client = AgoraRTC.createClient({
 
 export const VideoChatRoom = () => {
   const [users, setUsers] = useState([]);
-  const [clientId] = useState(Math.floor(new Date().getTime() / 1000));
   const [localTracks, setLocalTracks] = useState([]);
   const [chatSocket, setChatSocket] = useState(null);
   const [message, setMessage] = useState([]);
   const [messages, setMessages] = useState([]);
+  const { user } = useContext(AuthContext);
+  const clientId = user?.userId;
+
+  const { roomId } = useParams();
 
   const handleUserJoined = async (user, mediaType) => {
     await client.subscribe(user, mediaType);
@@ -40,6 +47,7 @@ export const VideoChatRoom = () => {
   };
 
   useEffect(() => {
+    if (!clientId) return;
     client.on("user-published", handleUserJoined);
     client.on("user-left", handleUserLeft);
 
@@ -61,8 +69,9 @@ export const VideoChatRoom = () => {
         ]);
         client.publish(tracks);
       });
-
-    const ws = new WebSocket(`ws://localhost:8000/ws/video-chat/3/${clientId}`);
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const url = `${protocol}://${API_DNS}/ws/chat/${roomId}/${clientId}`;
+    const ws = new WebSocket(url);
 
     ws.onopen = (event) => {
       ws.send("Connect");
@@ -71,8 +80,8 @@ export const VideoChatRoom = () => {
     // recieve message every start page
     ws.onmessage = (e) => {
       const message = JSON.parse(e.data);
-      console.log(messages)
-      setMessages(messages=>[...messages, message]);
+      console.log(messages);
+      setMessages((messages) => [...messages, message]);
     };
 
     setChatSocket(ws);
@@ -85,7 +94,7 @@ export const VideoChatRoom = () => {
       client.off("user-published", handleUserJoined);
       client.off("user-left", handleUserLeft);
       client.unpublish().then(() => client.leave());
-      ws.close()
+      ws.close();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -101,11 +110,11 @@ export const VideoChatRoom = () => {
 
   const sendMessage = () => {
     chatSocket.send(message);
-    console.log(messages)
+    console.log(messages);
     chatSocket.onmessage = (e) => {
       const message = JSON.parse(e.data);
-      console.log(message)
-      setMessages(messages=>[...messages, message]);
+      console.log(message);
+      setMessages((messages) => [...messages, message]);
     };
     setMessage([]);
   };
