@@ -13,3 +13,6 @@
 - Client: Projeto em reactJs para o cliente do projeto
 - Server: Projeto em python com o framework fastapi para manipular os sockets e as requisições http
 - apache: arquivos utilizados para implantação do projeto no domínio: https://trabalho-frc.luisfurtadoaraujo.com/
+
+### Link para apresentação
+https://www.youtube.com/watch?v=OB0cNNKCPBw
