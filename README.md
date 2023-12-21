@@ -5,11 +5,11 @@
 - Deivid Carvalho
 - Kevin Batista
 - Luís Fernando Furtado de Araújo
+- Mateus Moreira
+- Caio Oliveira
 
-### Iniciando
+### Conteúdo
 
-1. Abra o terminal, abra a pasta do projeto e rode Server.py, com os seguintes parâmetros:
-
-- porta
-- limite de participantes na sala
-- nome da sala
+- Client: Projeto em reactJs para o cliente do projeto
+- Server: Projeto em python com o framework fastapi para manipular os sockets e as requisições http
+- apache: arquivos utilizados para implantação do projeto no domínio: https://trabalho-frc.luisfurtadoaraujo.com/
